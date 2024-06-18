@@ -1,8 +1,17 @@
 import sys
 try:
-    from PyQt6.QtWidgets import *
+    from PyQt5.QtCore import *
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
 except Exception:
-    from PySide6.QtWidgets import *
+    try:
+        from PySide2.QtGui import *
+        from PySide2.QtCore import *
+        from PySide2.QtWidgets import *
+    except Exception:
+        from PySide6.QtCore import *
+        from PySide6.QtGui import *
+        from PySide6.QtWidgets import *
 import ifcopenshell
 
 
@@ -24,10 +33,11 @@ class SchemaViewer(QWidget):
         vbox.addLayout(hbox)
 
         # Schema Chooser
-        self.current_schema = 'IFC2X3'
+        schema_names = ifcopenshell.ifcopenshell_wrapper.schema_names()
+        self.current_schema = schema_names[0]
         self.schema_chooser = QComboBox()
-        self.schema_chooser.addItems(['IFC2X3', 'IFC4', 'IFC4x1','IFC4x2','IFC4x3_rc1','IFC4x3_rc2','IFC4x3_rc3','IFC4x3_rc4'])
-        self.schema_chooser.textActivated.connect(self.set_schema)
+        self.schema_chooser.addItems(schema_names)
+        self.schema_chooser.activated.connect(self.set_schema)
         hbox.addWidget(self.schema_chooser)
 
         # Column Count Chooser
@@ -80,8 +90,8 @@ class SchemaViewer(QWidget):
         self.columns = columns
         self.reload_schema()
 
-    def set_schema(self, ifc_schema):
-        self.current_schema = ifc_schema
+    def set_schema(self):
+        self.current_schema = self.schema_chooser.currentText()
         self.reload_schema()
 
     def toggle_show_entities(self):
